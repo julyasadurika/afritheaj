@@ -1,0 +1,81 @@
+import React, { useState } from 'react';
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { motion } from "framer-motion";
+
+export default function ItineraryApp() {
+  const [itinerary, setItinerary] = useState([]);
+  const [location, setLocation] = useState("");
+  const [description, setDescription] = useState("");
+  const [time, setTime] = useState("");
+
+  const addItem = () => {
+    if (!location || !description || !time) {
+      alert("Please fill all fields.");
+      return;
+    }
+    setItinerary([...itinerary, { location, description, time }]);
+    setLocation("");
+    setDescription("");
+    setTime("");
+  };
+
+  const exportItinerary = () => {
+    const content = itinerary.map(item =>
+      `Location: ${item.location}\nDetails: ${item.description}\nTime: ${item.time}\n---`
+    ).join("\n\n");
+
+    const blob = new Blob([content], { type: 'text/plain' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'itinerary.txt';
+    a.click();
+  };
+
+  return (
+    <div className="max-w-2xl mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4 text-center">Travel Itinerary Planner</h1>
+
+      <Card className="mb-4">
+        <CardContent className="space-y-2">
+          <Input
+            placeholder="Location"
+            value={location}
+            onChange={e => setLocation(e.target.value)}
+          />
+          <Textarea
+            placeholder="Description"
+            value={description}
+            onChange={e => setDescription(e.target.value)}
+          />
+          <Input
+            placeholder="Estimated Time"
+            value={time}
+            onChange={e => setTime(e.target.value)}
+          />
+          <Button onClick={addItem} className="w-full">Add to Itinerary</Button>
+        </CardContent>
+      </Card>
+
+      <div className="space-y-4">
+        {itinerary.map((item, index) => (
+          <motion.div key={index} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            <Card>
+              <CardContent>
+                <h2 className="font-bold">{item.location}</h2>
+                <p>{item.description}</p>
+                <p className="text-sm text-gray-500">Estimated Time: {item.time}</p>
+              </CardContent>
+            </Card>
+          </motion.div>
+        ))}
+      </div>
+
+      {itinerary.length > 0 && (
+        <Button onClick={exportItinerary} className="mt-4 w-full">Export Itinerary</Button>
+      )}
+    </div>
+  );
+}
